@@ -2,7 +2,10 @@ import wolframalpha
 
 from matriz.matriz import MatrizBiDimensional
 
-client = wolframalpha.Client('5PV6W3-VGU7K4L349')
+f = open('testes/wolfram-app-id.txt')
+app_id = f.readline().replace('\n', '')
+f.close()
+client = wolframalpha.Client(app_id)
 
 def __adicionar_linha_a_query(matriz, i):
     return '{' + ','.join([ str(matriz[i][j]) for j in range(matriz.colunas) ]) + '}'
