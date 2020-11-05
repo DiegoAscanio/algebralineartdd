@@ -1,10 +1,13 @@
 import pytest
 import random
 import copy
+from itertools import permutations
 
 from matriz.matriz import MatrizBiDimensional
-from matriz.exceptions import MatrizInconsistenteException, TermoMultiplicacaoInvalidoException
-from testes.utils import wolfram_escalonamento_linha_reduzido
+from matriz.exceptions import *
+from testes.utils import wolfram_escalonamento_linha_reduzido, wolfram_determinante
+
+wolfram_disabled = True
 
 def test_excecao_matriz_inconsistente():
     with pytest.raises(MatrizInconsistenteException) as excinfo:
@@ -409,7 +412,7 @@ def test_private_operacao_elementar_combinacao_linear_linha_1_igual_linha_1_mais
 
 def test_posto_nulidade_matriz_A_6x8_2_linhas_nulas():
     A = MatrizBiDimensional([[random.randint(-10,10) for j in range(8)] for i in range(3) ] + [ [0 for j in range(8)] ] + [ [random.randint(-10,10) for j in range(8)] ] + [ [0 for j in range(8)] ])
-    assert (4, 2) == (A.posto, A.nulidade)
+    assert (4, 4) == (A.posto, A.nulidade)
 
 
 def test_private_organizar_linhas_nulas_e_nao_nulas():
@@ -434,6 +437,7 @@ def test_private_transformar_demais_elementos_kj_em_nulos():
                                      [0, -3,  1,  -1],\
                                      [0, -2, -2, -14]])
 
+@pytest.mark.skipif(wolfram_disabled, reason="Feature com recursos limitados!")
 def forma_escada_linha_reduzida_matriz_aleatoria_com_verificacao_no_wolfram_alpha():
     linhas  = random.randint(4, 6)
     colunas = random.randint(3, 8)
@@ -444,10 +448,13 @@ def forma_escada_linha_reduzida_matriz_aleatoria_com_verificacao_no_wolfram_alph
     A_welr = MatrizBiDimensional([[round(A_welr[i][j], 4) for j in range(A_welr.colunas)] for i in range(A_welr.linhas)])
     return A_felr == A_welr
 
-def test_forma_escada_linha_reduzida_matrizes_aleatorias_4_vezes():
-    for i in range(4):
+@pytest.mark.skipif(wolfram_disabled, reason="Feature com recursos limitados!")
+def test_forma_escada_linha_reduzida_matrizes_aleatorias_1_vez():
+    for i in range(1):
         assert True == forma_escada_linha_reduzida_matriz_aleatoria_com_verificacao_no_wolfram_alpha()
 
+
+@pytest.mark.skipif(wolfram_disabled, reason="Feature com recursos limitados!")
 def test_forma_escada_linha_reduzida_matriz_psicodelica():
     A = MatrizBiDimensional([[1 for j in range(5)], [2 for j in range(5)], [3 for j in range(5)]] + [[0 for j in range(5)] for i in range(2)])
     A_felr = A.forma_escada_linha_reduzida()
@@ -455,3 +462,99 @@ def test_forma_escada_linha_reduzida_matriz_psicodelica():
     A_felr = MatrizBiDimensional([[round(A_felr[i][j], 4) for j in range(A_felr.colunas)] for i in range(A_felr.linhas)])
     A_welr = MatrizBiDimensional([[round(A_welr[i][j], 4) for j in range(A_welr.colunas)] for i in range(A_welr.linhas)])
     assert A_felr == A_welr
+
+def test_private_lista_permutacoes_matriz_quadrada_ordem_m_aleatorio():
+    m = random.randint(1,6)
+    A = MatrizBiDimensional.identidade(m)
+    assert A._MatrizBiDimensional__lista_permutacoes() == list(permutations(range(m)))
+
+def test_private_pares_ordenados_para_verificacao_de_sinal_de_permutacoes_matriz_ordem_3():
+    A = MatrizBiDimensional.identidade(3)
+    assert A._MatrizBiDimensional__pares_ordenados_para_verificacao_de_sinal_de_permutacoes() == [(0,1),(0,2),(1,2)]
+
+def test_private_pares_ordenados_para_verificacao_de_sinal_de_permutacoes_matriz_ordem_5():
+    A = MatrizBiDimensional.identidade(5)
+    assert A._MatrizBiDimensional__pares_ordenados_para_verificacao_de_sinal_de_permutacoes() == [(0,1),(0,2),(0,3),(0,4),(1,2),(1,3),(1,4),(2,3),(2,4),(3,4)]
+
+def test_private_sinal_permutacao_0_2_1():
+    A = MatrizBiDimensional.identidade(3)
+    assert A._MatrizBiDimensional__sinal_permutacao([0, 2, 1]) == -1
+
+def test_private_sinal_permutacao_1_0_2():
+    A = MatrizBiDimensional.identidade(3)
+    assert A._MatrizBiDimensional__sinal_permutacao([1, 2, 0]) == 1
+
+def test_private_produtorio_permutacao_0_2_1():
+    A = MatrizBiDimensional([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    assert A._MatrizBiDimensional__produtorio([0, 2, 1]) == 1*6*8
+
+def test_private_produtorio_permutacao_2_1_0():
+    A = MatrizBiDimensional([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    assert A._MatrizBiDimensional__produtorio([2, 1, 0]) == 3*5*7
+
+def test_private_determinante_somatorio_produtorio_das_permutacoes():
+    A = MatrizBiDimensional([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    assert A._MatrizBiDimensional__determinante_somatorio_produtorio_das_permutacoes() == 0
+
+def test_excecao_determinante_matriz_nao_quadrada():
+    with pytest.raises(MatrizInconsistenteException) as excinfo:
+        a = MatrizBiDimensional([[1, 2, 3],\
+                             [4, 5, 6]])
+        a.determinante()
+    assert "A ordem da matriz deve ser quadrada para que seu determinante possa ser calculado" in str(excinfo.value) 
+
+
+@pytest.mark.skipif(wolfram_disabled, reason="Feature com recursos limitados!")
+def test_comparacao_determinantes_5_matrizes_aleatorias_ordem_3():
+    for execucao in range(5):
+        A = MatrizBiDimensional([[random.uniform(-5,5) for i in range(3)] for i in range(3)])
+        assert round(A.determinante(), 4) == round(wolfram_determinante(A), 4)
+
+def test_excecao_matriz_singular():
+    with pytest.raises(MatrizSingularException) as excinfo:
+        a = MatrizBiDimensional([[1,2,3],\
+                                 [4,5,6],\
+                                 [7,8,9]])
+        a.inversa()
+    assert 'A matriz especificada é singular e não pode ser invertida!'
+
+def test_private_inversa_por_fila_de_operacoes_elementares():
+    A = MatrizBiDimensional([[1,2,3],\
+                             [3,5,6],\
+                             [7,1,9]])
+    identidade = A * A._MatrizBiDimensional__inversa_por_fila_de_operacoes_elementares()
+    for i in range(identidade.linhas):
+        for j in range(identidade.colunas):
+            identidade[i][j] = round(identidade[i][j], 0)
+    assert identidade == MatrizBiDimensional.identidade(3)
+
+
+def test_excecao_matriz_cofatores_nao_quadrada():
+    with pytest.raises(MatrizInconsistenteException) as excinfo:
+        a = MatrizBiDimensional([[1,2,3],\
+                                 [4,5,6]])
+        a.cofatores()
+    assert 'A matriz especificada não é quadrada, portanto, não pode ter matriz de cofatores calculada!'
+
+def test_matriz_adjunta():
+    A = MatrizBiDimensional([[1,2,3],\
+                             [3,5,6],\
+                             [7,1,9]])
+    assert A.adjunta() == MatrizBiDimensional([[39, -15, -3], [15, -12, 3], [-32, 13, -1]])
+
+def test_private_inversa_por_adjunta_classica():
+    A = MatrizBiDimensional([[1,2,3],\
+                             [3,5,6],\
+                             [7,1,9]])
+    identidade = A * A._MatrizBiDimensional__inversa_por_adjunta_classica()
+    for i in range(identidade.linhas):
+        for j in range(identidade.colunas):
+            identidade[i][j] = round(identidade[i][j], 0)
+    assert identidade == MatrizBiDimensional.identidade(3)
+
+def test_inversa_adjunta_classica_igual_inversa_fila_operacoes_elementares():
+    A = MatrizBiDimensional([[1,2,3],\
+                             [3,5,6],\
+                             [7,1,9]])
+    
+    assert [[round(A.inversa(metodo_adjunta_classica=True)[i][j], 4) for j in range(3)] for i in range(3)] == [[round(A.inversa(metodo_adjunta_classica=False)[i][j], 4) for j in range(3)] for i in range(3)] 
