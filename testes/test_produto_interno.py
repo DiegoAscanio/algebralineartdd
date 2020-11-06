@@ -144,3 +144,18 @@ def test_ortonormalizar_vetores():
     base = [u, v, w]
     base_ortonormal = [u_orton, v_orton, w_orton]
     assert np.allclose(ortonormalizar_vetores(base), base_ortonormal)
+
+def test_ortonormalizar_vetores_polinomiais():
+    u = np.polynomial.Polynomial([0, 0, 1]) # u = 1 * t^2 
+    v = np.polynomial.Polynomial([0, 1])    # v = 1 * t
+    w = np.polynomial.Polynomial([1])       # w = 1
+    u_ortn = np.polynomial.Polynomial([0, 0, 1/2**0.5]) # u_ortn = 1/2^0.5 * t^2
+    v_ortn = np.polynomial.Polynomial([0, 1/2**0.5])    # v_ortn = 1/2^0.5 * t
+    w_ortn = np.polynomial.Polynomial([1,    0,    -1]) # w_ortn = -1 * t^2 - 1
+    base = [u, v, w]
+    base_ortonormal = [u_ortn, v_ortn, w_ortn]
+
+    produto_interno_polinomial = lambda p, q: p(-1) * q(-1) + p(0) * q(0) + p(1) * q(1)
+    base_ortonormal_calculada = ortonormalizar_vetores(base, funcional_linear = produto_interno_polinomial)
+
+    assert base_ortonormal_calculada == base_ortonormal
