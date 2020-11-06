@@ -1,2 +1,2 @@
-# matriztdd
-Desenvolvimento de operações em matrizes bidimensionais para disciplina de álgebra linear utilizando metodologia TDD
+# algebralineartdd
+Desenvolvimento de ferramentas para a disciplina de álgebra linear do mestrado em modelagem matemática computacional do CEFET-MG utilizando metodologia TDD. 
