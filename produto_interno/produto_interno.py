@@ -39,13 +39,13 @@ def gram_schmidt(i, vetores, funcional_linear = produto_interno_canonico):
 def ortogonalizar_vetores(vetores, funcional_linear = produto_interno_canonico):
     ortogonalizados = []
     for i in range(len(vetores)):
-        ortogonalizados.append(gram_schmidt(i, vetores, funcional_linear = funcional_linear))
+        ortogonalizados += [gram_schmidt(i, vetores, funcional_linear = funcional_linear)]
     return ortogonalizados
 
 def normalizar_vetores(vetores, funcional_linear = produto_interno_canonico):
     normalizados = []
     for v in vetores:
-        normalizados.append(normalizar(v, funcional_linear = funcional_linear))
+        normalizados += [normalizar(v, funcional_linear = funcional_linear)]
     return normalizados
 
 def ortonormalizar_vetores(vetores, funcional_linear = produto_interno_canonico):
