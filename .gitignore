@@ -128,3 +128,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# others
+matriz.zip
+multiplicar_matrizes.py
+construir_matriz_de_coeficientes_para_SLs.py
