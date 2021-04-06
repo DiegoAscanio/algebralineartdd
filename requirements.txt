@@ -87,7 +87,7 @@ tornado==6.1
 tqdm==4.54.1
 traitlets==5.0.5
 tsplib95==0.7.1
-urllib3==1.26.2
+urllib3==1.26.4
 virtualenv==20.2.2
 virtualenv-clone==0.5.4
 wcwidth==0.2.5
